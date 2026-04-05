@@ -10,7 +10,7 @@ VMD Shield-AI is an advanced computer vision framework engineered to transmute m
   <p><em>Real-time VMD Pipeline: Multi-Instance Neural Pose Estimation (Left) & Dense Monocular Inverse-Depth Mapping (Right)</em></p>
 </div>
 
-> **Note:** If the video does not autoplay in your browser, you can view the full demonstration [on YouTube here](https://youtu.be/RqsGIQ1qk6E).
+> **Note:** If the video does not autoplay in your browser, you can view the full demonstration [on YouTube here](https://youtu.be/WIPxz0-JK6I).
 > 
 ---
 
