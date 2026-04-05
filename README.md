@@ -1,5 +1,4 @@
 # 🛡️ VMD Shield-AI: Neural Spatiotemporal Intelligence Hub
-### **Winner: 3rd Rank @ Codethon '26, IIT Roorkee** 🥉
 
 VMD Shield-AI is an advanced computer vision framework engineered to transmute monocular 2D sensor data into high-fidelity, 3D-aware intelligence streams. By implementing a proprietary **VMD (Video, Motion, and Depth)** synchronization architecture, the system achieves sub-meter spatial accuracy and complex behavioral heuristics without auxiliary active-depth hardware (LiDAR/ToF).
 
@@ -41,11 +40,6 @@ The core innovation lies in the **VMD (Video, Motion, and Depth)** engine, which
 
 ---
 
-## 🏆 Hackathon Recognition
-This project secured **3rd Place** at **Codethon '26, IIT Roorkee**. The jury specifically commended the **VMD synchronization logic**, citing its high industrial scalability and robust ethical framework through real-time privacy-preserving inference.
-
----
-
 ## 🤝 Technical Collaboration & Licensing
 VMD Shield-AI is currently a **Proprietary/Closed-Source** framework as it undergoes transition from a prototype to a production-grade enterprise solution. 
 
@@ -53,8 +47,6 @@ VMD Shield-AI is currently a **Proprietary/Closed-Source** framework as it under
 * **Edge Optimization:** Porting the VMD stack to NVIDIA Jetson (TensorRT) and Coral TPU.
 * **Behavioral Scaling:** Training custom classifiers for high-risk environmental detection.
 
-* **LinkedIn:** [https://www.linkedin.com/in/surya-verma/]
-* **Email:** [11surya.v@gmail.com]
 
 ---
-*Architected for Codethon '26, IIT Roorkee*
+
