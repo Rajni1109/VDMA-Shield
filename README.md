@@ -8,7 +8,7 @@
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square&logo=python)](https://python.org)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-orange?style=flat-square&logo=pytorch)](https://pytorch.org)
-[![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)](#-licensing)
+[![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)](#-collaboration--licensing)
 
 </div>
 
@@ -18,7 +18,7 @@
 
 **Real-time VMD Pipeline** — Pose Estimation (left) + Monocular Depth Map (right)
 
-> _Video not playing? Watch the full demo **[on YouTube →](#)**_
+> _Video not playing? Watch the full demo **[on YouTube →](https://youtu.be/WIPxz0-JK6I?si=x4BWxruKE_T5OHZ1)**_
 
 ---
 
@@ -44,9 +44,6 @@ Every detected face is blurred in real time using pose keypoints. The system nev
 **📦 No Special Hardware Needed**
 Depth is estimated from a standard RGB camera using a neural model. No LiDAR, no ToF sensor, no stereo rig — any IP camera or webcam works.
 
-**🖥️ Multi-Camera GUI Dashboard**
-A PyQt6 desktop app lets you add cameras by RTSP URL, monitor all feeds in a live grid, and review the full alert history — all from one interface.
-
 **💾 Evidence Clips Saved Automatically**
 When an alert is confirmed, the system saves a 10-second MP4 clip (including pre-event footage) to an `evidence/` folder for review.
 
@@ -60,8 +57,7 @@ Every alert is stored in a local SQLite database with camera name, alert type, s
 ```
 vmd-shield-ai/
 │
-├── main.py                   # Headless entry point (CLI mode)
-├── gui_app.py                # Desktop GUI dashboard (PyQt6)
+├── main.py                   # Entry point — runs the full pipeline
 ├── requirements.txt          # Python dependencies
 ├── .gitignore
 │
@@ -75,9 +71,7 @@ vmd-shield-ai/
 │
 ├── audio_engine.py           # YAMNet — sound classification (screams, gunshots)
 ├── evidence_manager.py       # Saves pre/post-event video clips
-├── utils.py                  # Drawing skeletons, overlays, face blur
-│
-└── sentinel.db               # Auto-created SQLite database (gitignored)
+└── utils.py                  # Drawing skeletons, overlays, face blur
 ```
 
 ---
@@ -90,13 +84,11 @@ vmd-shield-ai/
 - A GPU is strongly recommended — NVIDIA (CUDA) or Apple Silicon (MPS)
 - CPU-only works but will be slow for live streams
 
----
-
 ### Step 1 — Clone the repo
 
 ```bash
-git clone https://github.com/your-username/vmd-shield-ai.git
-cd vmd-shield-ai
+git clone https://github.com/Rajni1109/VDMA-Shield.git
+cd VDMA-Shield
 ```
 
 ### Step 2 — Create a virtual environment
@@ -154,24 +146,11 @@ python -c "import torch; torch.hub.load('intel-isl/MiDaS', 'MiDaS_small', trust_
 
 ## ▶️ Running the System
 
-### Option A — GUI Dashboard _(recommended)_
-
-```bash
-python gui_app.py
-```
-
-Opens a full desktop interface with:
-- **Live View** — all camera feeds in a grid with overlaid detections
-- **Cameras** — add or remove cameras by RTSP URL
-- **Event Log** — searchable table of every alert that fired
-
-### Option B — Headless / CLI Mode
-
 ```bash
 python main.py
 ```
 
-Before running, set your video source at the top of `main.py`:
+Before running, set your video source inside `main.py`:
 
 ```python
 video_path = 'rtsp://admin:password@192.168.1.100:554/stream1'  # IP camera
@@ -185,25 +164,6 @@ video_path = 'clip.mp4'   # Local video file
 |---|---|
 | `Q` | Quit |
 | `D` | Toggle depth map overlay |
-
----
-
-## 📡 Adding a Camera (GUI)
-
-1. Open the **Cameras** page from the sidebar
-2. Click **＋ Add Camera**
-3. Fill in the form:
-
-| Field | Example |
-|---|---|
-| Camera Name | `Parking Lot North` |
-| RTSP URL | `rtsp://admin:pass@192.168.1.55:554/stream` |
-| Location | `Site B, Ground Floor` |
-| Zone Type | `Parking` |
-
-4. Click **Add Camera** — the feed starts immediately in **Live View**
-
-All camera data is saved to `sentinel.db` and reloaded automatically on the next launch.
 
 ---
 
@@ -239,7 +199,7 @@ FallDetector(time_to_confirm=1.5)          # Seconds sustained before alert fire
 
 An alert must fire **3 or more times within 10 seconds** before a clip is saved — this prevents single-frame noise from filling your disk.
 
-Clips are saved to the `evidence/` folder with timestamps:
+Clips are saved to the `evidence/` folder:
 
 ```
 evidence/
@@ -248,9 +208,9 @@ evidence/
 └── WARNING_UNATTENDED_OBJECT_20250601_150122.mp4
 ```
 
-Each clip includes **10 seconds of pre-event footage** from a rolling buffer, so you always see what led up to the incident.
+Each clip includes **10 seconds of pre-event footage** so you always see what led up to the incident.
 
-Configure buffer size in `main.py`:
+Configure in `main.py`:
 
 ```python
 evidence_mgr = VideoEvidenceManager(
@@ -258,45 +218,6 @@ evidence_mgr = VideoEvidenceManager(
     fps=20,
     output_dir="evidence"
 )
-```
-
----
-
-## 🗃️ Database Schema
-
-The SQLite database (`sentinel.db`) is created automatically and has two tables:
-
-```sql
--- Stores all registered cameras
-CREATE TABLE cameras (
-    id        INTEGER PRIMARY KEY AUTOINCREMENT,
-    name      TEXT NOT NULL,
-    rtsp_url  TEXT NOT NULL,
-    location  TEXT NOT NULL,
-    zone      TEXT DEFAULT 'General',
-    active    INTEGER DEFAULT 1,
-    added_at  TEXT DEFAULT (datetime('now'))
-);
-
--- Stores every alert event
-CREATE TABLE events (
-    id          INTEGER PRIMARY KEY AUTOINCREMENT,
-    camera_id   INTEGER,
-    camera_name TEXT,
-    alert_text  TEXT,
-    severity    TEXT DEFAULT 'ALERT',
-    timestamp   TEXT DEFAULT (datetime('now'))
-);
-```
-
-Query it directly anytime:
-
-```bash
-# See last 20 alerts
-sqlite3 sentinel.db "SELECT timestamp, camera_name, alert_text FROM events ORDER BY id DESC LIMIT 20;"
-
-# See all registered cameras
-sqlite3 sentinel.db "SELECT id, name, location, rtsp_url FROM cameras;"
 ```
 
 ---
@@ -310,7 +231,6 @@ sqlite3 sentinel.db "SELECT id, name, location, rtsp_url FROM cameras;"
 | Depth Estimation | MiDaS DPT (via PyTorch Hub) |
 | Motion Analysis | OpenCV Farneback Optical Flow |
 | Audio Classification | TensorFlow + YAMNet |
-| GUI | PyQt6 |
 | Database | SQLite3 |
 | Evidence Recording | OpenCV VideoWriter |
 
